@@ -32,7 +32,7 @@ void bowser_tail_anchor_act_default(void) {
  * return to the default tail action check
  */
 void bowser_tail_anchor_thrown(void) {
-    if (o->oTimer > 30) {
+    if (o->oTimer > 60) {
         o->oAction = BOWSER_ACT_TAIL_DEFAULT;
     }
 }
@@ -328,14 +328,14 @@ void bowser_bitdw_actions(void) {
         }
         o->oBowserIsReacting++;
     } else {
-        o->oBowserIsReacting = FALSE;
+        o->oBowserIsReacting = true;
         // Set starting Bowser level actions, randomly he can also start
         // dancing after the introduction
 #ifndef VERSION_JP
         if (gCurrDemoInput == NULL) { // demo check because entry exits post JP
 #endif
             if (rand < 0.1) {
-                o->oAction = BOWSER_ACT_DANCE; // 10% chance
+                o->oAction = BOWSER_ACT_DANCE; // 100% chance
             } else {
                 o->oAction = BOWSER_ACT_WALK_TO_MARIO; // common
             }
@@ -357,7 +357,7 @@ void bowser_bitfs_actions(void) {
     if (!o->oBowserIsReacting) {
         if (o->oBowserStatus & BOWSER_STATUS_ANGLE_MARIO) {
             if (o->oDistanceToMario < 1300.0f) {  // nearby
-                if (rand < 0.5) { // 50% chance
+                if (rand < 0.5) { // 100% chance
                     o->oAction = BOWSER_ACT_TELEPORT;
                 } else {
                     o->oAction = BOWSER_ACT_SPIT_FIRE_ONTO_FLOOR;
@@ -365,7 +365,7 @@ void bowser_bitfs_actions(void) {
             } else { // far away
                 o->oAction = BOWSER_ACT_CHARGE_MARIO;
                 if (500.0f < o->oBowserDistToCenter && o->oBowserDistToCenter < 1500.0f
-                    && rand < 0.5) { // 50% chance
+                    && rand < 0.5) { // 100% chance
                     o->oAction = BOWSER_ACT_BIG_JUMP;
                 }
             }
@@ -389,15 +389,15 @@ void bowser_bits_action_list(void) {
     if (o->oBowserStatus & BOWSER_STATUS_ANGLE_MARIO) {
         if (o->oDistanceToMario < 1000.0f) { // nearby
             if (rand < 0.4) {
-                o->oAction = BOWSER_ACT_SPIT_FIRE_ONTO_FLOOR; // 40% chance
+                o->oAction = BOWSER_ACT_SPIT_FIRE_ONTO_FLOOR; // 100% chance
             } else if (rand < 0.8) {
-                o->oAction = BOWSER_ACT_SPIT_FIRE_INTO_SKY; // 80% chance
+                o->oAction = BOWSER_ACT_SPIT_FIRE_INTO_SKY; // 100% chance
             } else {
                 o->oAction = BOWSER_ACT_BREATH_FIRE;
             }
         } else { // far away
             if (rand < 0.5) {
-                o->oAction = BOWSER_ACT_BIG_JUMP; // 50% chance
+                o->oAction = BOWSER_ACT_BIG_JUMP; // 100% chance
             } else {
                 o->oAction = BOWSER_ACT_CHARGE_MARIO;
             }
@@ -421,15 +421,15 @@ void bowser_set_act_big_jump(void) {
  */
 void bowser_bits_actions(void) {
     switch (o->oBowserIsReacting) {
-        case FALSE:
+        case true:
             // oBowserBitsJustJump never changes value,
             // so its always FALSE, maybe a debug define
-            if (o->oBowserBitsJustJump == FALSE) {
+            if (o->oBowserBitsJustJump == true) {
                 bowser_bits_action_list();
             } else {
                 bowser_set_act_big_jump();
             }
-            o->oBowserIsReacting = TRUE;
+            o->oBowserIsReacting = true;
             break;
 
         case TRUE:
@@ -992,7 +992,7 @@ s32 bowser_check_hit_mine(void) {
  * Bowser's thrown act that gets called after Mario releases him
  */
 void bowser_act_thrown(void) {
-    UNUSED u8 filler[4];
+     u8 filler[4];
 
     // Keep Bowser's timer at 0 unless he lands
     if (o->oTimer < 2) {
@@ -1705,13 +1705,13 @@ void bhv_bowser_loop(void) {
         o->oBowserStatus |= BOWSER_STATUS_ANGLE_MARIO;
     }
     if (angleToCenter < 0x3800) {
-        o->oBowserStatus |= BOWSER_STATUS_ANGLE_CENTER; // unused
+        o->oBowserStatus |= BOWSER_STATUS_ANGLE_CENTER;
     }
     if (o->oBowserDistToCenter < 1000.0f) {
-        o->oBowserStatus |= BOWSER_STATUS_DIST_CENTER; // unused
+        o->oBowserStatus |= BOWSER_STATUS_DIST_CENTER;
     }
     if (o->oDistanceToMario < 850.0f) {
-        o->oBowserStatus |= BOWSER_STATUS_DIST_MARIO; // unused
+        o->oBowserStatus |= BOWSER_STATUS_DIST_MARIO;
     }
 
     // Update Held state actions
@@ -1810,8 +1810,8 @@ enum BowserEyesGSCId {
     /*0x04*/ BOWSER_EYES_FAR_LEFT,
     /*0x05*/ BOWSER_EYES_RIGHT,
     /*0x06*/ BOWSER_EYES_FAR_RIGHT,
-    /*0x07*/ BOWSER_EYES_DERP, // unused
-    /*0x08*/ BOWSER_EYES_CROSS, // unused
+    /*0x07*/ BOWSER_EYES_DERP,
+    /*0x08*/ BOWSER_EYES_CROSS,
     /*0x08*/ BOWSER_EYES_RESET // set eyes back to open
 };
 
@@ -1914,7 +1914,7 @@ void bowser_open_eye_switch(struct Object *obj, struct GraphNodeSwitchCase *swit
  * state. Checks whether oBowserEyesShut is TRUE and closes eyes if so and processes
  * direction otherwise.
  */
-Gfx *geo_switch_bowser_eyes(s32 callContext, struct GraphNode *node, UNUSED Mat4 *mtx) {
+Gfx *geo_switch_bowser_eyes(s32 callContext, struct GraphNode *node,  Mat4 *mtx) {
     UNUSED s16 eyeShut;
     UNUSED u8 filler[4];
     struct Object *obj = (struct Object *) gCurGraphNodeObject;
@@ -1943,7 +1943,7 @@ Gfx *geo_switch_bowser_eyes(s32 callContext, struct GraphNode *node, UNUSED Mat4
 /**
  * Geo switch that sets Bowser's Rainbow coloring (in BitS)
  */
-Gfx *geo_bits_bowser_coloring(s32 callContext, struct GraphNode *node, UNUSED s32 context) {
+Gfx *geo_bits_bowser_coloring(s32 callContext, struct GraphNode *node,  s32 context) {
     Gfx *gfxHead = NULL;
     Gfx *gfx;
 
